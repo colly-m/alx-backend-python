@@ -3,10 +3,10 @@
 from math import floor
 
 
-def floor_float(n: float) -> int:
+def floor(n: float) -> int:
     """
     Function to take a float number as input and returns the floor of the
     number as an integer.
     :param n: float
     """
-    return floor(n)
+    return int(n)
