@@ -2,14 +2,8 @@
 """Module to create a class to inherit from utils.access_nested_map"""
 import unittest
 from parameterized import parameterized
-
-
-def access_nested_map(nested_map, path):
-    """Function to access nested maps"""
-    curr = nested_map
-    for key in path:
-        curr = curr[key]
-    return curr
+from utils import access_nested_map, get_json, memoize
+from unittest.mock import Mock, path
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -32,6 +26,22 @@ class TestAccessNestedMap(unittest.TestCase):
         with self.assertRaises(KeyError) as e:
             access_nested_map(nested_map, path)
             self.assertEqual(error_output, e.exception)
+
+
+class TestGeJson(unittest.TestCase):
+    """Class to test the get_json function"""
+    @parameterized.expand([
+        ("http://example.com", {"payload": True}),
+        ("http://holberton.io", {"payload": False})
+    ])
+    def test_get_json(self, test_url, test_payload):
+        """Function to test check the output"""
+        mock_answer = Mock()
+        mock_answer.json.return_value = test_payload
+        with patch('requests.get', return_value=mock_answer):
+            real_answer = get_json(test_url)
+            self.assertEqual(real_answer, test_payload)
+            mock_answer.json.assert_called_once()
 
 
 if __name__ == "__main__":
