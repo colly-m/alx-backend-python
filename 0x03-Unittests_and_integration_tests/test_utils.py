@@ -44,5 +44,29 @@ class TestGeJson(unittest.TestCase):
             mock_answer.json.assert_called_once()
 
 
+class TestMemoizer(unittest.TestCase):
+    """Class function to test memoization"""
+    def test_memoize(self):
+        """Function to test memoization"""
+
+        class TestClass:
+            """Class for the test class"""
+
+            def a_method(self):
+                """Function to output 42"""
+                return 42
+
+            @memoize
+            def a_property(self):
+                """Function to get the memoized property"""
+                return self.a_method()
+
+        with patch.object(TestClass, 'a_method', return_value=42) as mocked:
+            spec = TestClass()
+            spec.a_property
+            spec.a_property
+            mocked.asset_called_once()
+
+
 if __name__ == "__main__":
     unittest.main()
