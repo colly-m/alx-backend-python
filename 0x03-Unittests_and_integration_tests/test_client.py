@@ -93,3 +93,22 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             return MagicMock()
 
         cls.mock_get.side_effect = side_effect
+
+    @classmethod
+    def tearDownClass(cls):
+        """Function to destroy the class by stopping the patcher"""
+        cls.get_patcher.stop()
+
+    def test_public_repos(self):
+        """Function to test for public_repos returns expected list"""
+        client = GithubOrgClient(self.org_payload["login"])
+        repos = client.public_repos()
+        self.assertEqual(repos, self.expected_repos)
+
+    def test_public_repos_with_license(self):
+        """Function to test for public_repos with the specified license"""
+        client = GithubOrgClient(self.org_payload["login"])
+        repos = client.public_repos("apache-2.0")
+        expected = [repo["name"] for repo in self.apache2_repos
+                   if repo.get("license", {}).get("key") == "apache-2.0"]
+        self.assertEqual(repos, expected)
