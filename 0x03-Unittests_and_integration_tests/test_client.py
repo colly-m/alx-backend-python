@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Module to test client"""
-
+import fixtures
 import unittest
-from unittest.mock import patch, Mock
-from parameterized import parameterized
+from unittest.mock import patch, MagicMock
+from parameterized import parameterized_class
 from client import GithubOrgClient
 
 
@@ -61,3 +61,35 @@ class TestGithubOrgClient(unittest.TestCase):
         """Function to test if client has_license returns the expected value"""
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
+
+
+@parameterized_class([
+    {
+        "org_payload": fixtures.org_payload,
+        "repos_payload": fixtures.repos_payload,
+        "expected_repos": fixtures.expected_repos,
+        "apache2_repos": fixtures.apache2_repos
+    }
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Class to test githubclient integration"""
+    @classmethod
+    def setUpClass(cls):
+        """Function for patching 'requests.get' and returns example payloads
+        found in the fixtures.
+        """
+        cls.get_patcher = patch('requests.get')
+        cls.mock_get = cls.get_patcher.start()
+
+        def side_effect(url):
+            if url == cls.org_payload["repos_url"]:
+                response = MagicMock()
+                response.json.return_value = cls.repos_payload
+                return response
+            elif url.startswith("https://api.github.com/orgs/"):
+                response = MagicMock()
+                response.json.return_value = cls.org_payload
+                return response
+            return MagicMock()
+
+        cls.mock_get.side_effect = side_effect
